@@ -1,98 +1,104 @@
+let currentUser = null;
 let totalCoins = 0;
-const coinValue = 120; // 120 coins = ₹1
+const coinValue = 120;
 
-function redeem() {
+function updateWalletUI() {
+  document.getElementById("coins").innerText = `${totalCoins} Coins`;
+  document.getElementById("rupees").innerText = `≈ ₹${(totalCoins / coinValue).toFixed(2)}`;
+}
 
-    let coins = document.getElementById("coinInput").value;
-    let details = document.getElementById("paymentDetails").value;
-
-    if (coins < 1200) {
-        alert("Minimum withdrawal is 1200 coins");
-        return;
-    }
-
-    if (details === "") {
-        alert("Enter payment details");
-        return;
-    }
-
-    // Deduct coins
-    totalCoins -= coins;
-    document.getElementById("coins").innerText = totalCoins + " Coins";
-
-    let rupees = (totalCoins / coinValue).toFixed(2);
-    document.getElementById("rupees").innerText = "≈ ₹" + rupees;
-
-    // Add history
-    let li = document.createElement("li");
-    li.innerText = coins + " Coins Withdrawal Requested";
-    document.getElementById("historyList").appendChild(li);
-
-    // Show popup
-    let popup = document.getElementById("popup");
-    popup.style.display = "block";
-
-    setTimeout(() => {
-        popup.style.display = "none";
-    }, 2000);
-}const userId = "user123";
-
-// Load Coins
 function loadWallet() {
+  if (!currentUser) return;
 
-    db.collection("users").doc(userId).get().then((doc) => {
+  db.collection("users").doc(currentUser.uid).onSnapshot((doc) => {
+    if (!doc.exists) {
+      db.collection("users").doc(currentUser.uid).set({
+        name: currentUser.displayName || "User",
+        email: currentUser.email || "",
+        coins: 0,
+      });
+      return;
+    }
 
-        if (doc.exists) {
+    totalCoins = doc.data().coins || 0;
+    updateWalletUI();
+  });
 
-            let coins = doc.data().coins;
+  db.collection("withdrawals")
+    .where("userId", "==", currentUser.uid)
+    .orderBy("date", "desc")
+    .limit(10)
+    .onSnapshot((snapshot) => {
+      const historyList = document.getElementById("historyList");
+      historyList.innerHTML = "";
 
-            document.getElementById("coins").innerText =
-                coins + " Coins";
-
-        } else {
-
-            db.collection("users").doc(userId).set({
-                coins: 5000
-            });
-
-        }
-
+      snapshot.forEach((withdrawal) => {
+        const data = withdrawal.data();
+        const li = document.createElement("li");
+        li.innerText = `${data.coins} Coins Withdrawal Requested (${data.status})`;
+        historyList.appendChild(li);
+      });
     });
-
 }
 
-// Redeem
 function redeem() {
+  if (!currentUser) return;
 
-    let coins =
-        parseInt(document.getElementById("coinInput").value);
+  const coins = parseInt(document.getElementById("coinInput").value, 10);
+  const details = document.getElementById("paymentDetails").value.trim();
 
-    db.collection("users").doc(userId).get().then((doc) => {
+  if (!Number.isFinite(coins) || coins < 1200) {
+    alert("Minimum withdrawal is 1200 coins");
+    return;
+  }
 
-        let currentCoins = doc.data().coins;
+  if (!details) {
+    alert("Enter payment details");
+    return;
+  }
 
-        let newCoins = currentCoins - coins;
+  if (coins > totalCoins) {
+    alert("Insufficient balance");
+    return;
+  }
 
-        db.collection("users").doc(userId).update({
-            coins: newCoins
-        });
+  db.collection("users")
+    .doc(currentUser.uid)
+    .update({
+      coins: firebase.firestore.FieldValue.increment(-coins),
+    })
+    .then(() => {
+      return db.collection("withdrawals").add({
+        userId: currentUser.uid,
+        coins,
+        details,
+        status: "pending",
+        date: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    })
+    .then(() => {
+      const popup = document.getElementById("popup");
+      popup.style.display = "block";
+      setTimeout(() => {
+        popup.style.display = "none";
+      }, 2000);
 
-        db.collection("withdrawals").add({
-            userId: userId,
-            coins: coins,
-            status: "pending",
-            date: new Date()
-        });
-
-        alert("Withdrawal Requested ✅");
-
-        loadWallet();
-
+      document.getElementById("coinInput").value = "";
+      document.getElementById("paymentDetails").value = "";
+    })
+    .catch((error) => {
+      alert(error.message);
     });
-
 }
 
-loadWallet();
-loadcoins();
+auth.onAuthStateChanged((user) => {
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
 
+  currentUser = user;
+  loadWallet();
+});
 
+window.redeem = redeem;
