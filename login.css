@@ -26,3 +26,22 @@ body {
     border-radius: 10px;
     cursor: pointer;
 }
+
+
+* {
+    box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 16px;
+        align-items: stretch;
+    }
+
+    .login-container {
+        width: 100%;
+        max-width: 360px;
+        margin: auto;
+        padding: 28px 20px;
+    }
+}

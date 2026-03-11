@@ -6,7 +6,7 @@ body {
 }
 
 .container {
-  max-width: 500px;
+  max-width: 700px;
   margin: auto;
   padding: 20px;
 }
@@ -32,4 +32,20 @@ h2 {
 
 .coins {
   color: #22c55e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 14px;
+  }
+
+  .player {
+    padding: 12px;
+    font-size: 14px;
+    gap: 8px;
+  }
 }
