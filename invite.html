@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Invite & Earn</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f4f4;
+margin:0;
+padding:20px;
+text-align:center;
+}
+
+.container{
+background:white;
+max-width:420px;
+margin:auto;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.code{
+font-size:26px;
+letter-spacing:3px;
+background:#111;
+color:white;
+padding:12px;
+border-radius:6px;
+margin:15px 0;
+}
+
+input{
+width:80%;
+padding:10px;
+margin-top:10px;
+border:1px solid #ccc;
+border-radius:6px;
+}
+
+button{
+margin-top:10px;
+padding:10px 20px;
+background:#00c853;
+border:none;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+background:#00a846;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Invite & Earn</h2>
+
+<p>Your Referral Code</p>
+
+<div id="myCode" class="code">Loading...</div>
+
+<div id="refBox">
+
+<p>Enter Referral Code</p>
+
+<input id="refInput" placeholder="Enter code">
+
+<br>
+
+<button onclick="submitReferral()">Submit</button>
+
+</div>
+
+</div>
+
+
+<!-- Firebase -->
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+
+<script>
+
+// -----------------
+// FIREBASE CONFIG
+// -----------------
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyCa9Tf1MjwFbvG1IdrWAdaol3Bhkfh_rLU",
+  authDomain: "coinsnest-f0a5f.firebaseapp.com",
+  projectId: "coinsnest-f0a5f",
+
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUser;
+
+
+// -----------------
+// GENERATE CODE
+// -----------------
+
+function generateCode(){
+
+let chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+let code="";
+
+for(let i=0;i<6;i++){
+code+=chars.charAt(Math.floor(Math.random()*chars.length));
+}
+
+return code;
+
+}
+
+
+// -----------------
+// USER LOGIN CHECK
+// -----------------
+
+auth.onAuthStateChanged(user=>{
+
+if(user){
+
+currentUser=user;
+
+loadUser();
+
+}else{
+
+window.location="login.html";
+
+}
+
+});
+
+
+
+// -----------------
+// LOAD USER
+// -----------------
+
+function loadUser(){
+
+let userRef=db.collection("users").doc(currentUser.uid);
+
+userRef.get().then(doc=>{
+
+if(doc.exists){
+
+document.getElementById("myCode").innerText=
+doc.data().referralCode;
+
+if(doc.data().referredBy){
+
+document.getElementById("refBox").style.display="none";
+
+}
+
+}else{
+
+let code=generateCode();
+
+userRef.set({
+
+coins:0,
+referralCode:code,
+referredBy:null
+
+});
+
+document.getElementById("myCode").innerText=code;
+
+}
+
+});
+
+}
+
+
+
+// -----------------
+// SUBMIT REFERRAL
+// -----------------
+
+function submitReferral(){
+
+let code=document.getElementById("refInput").value.trim();
+
+if(code===""){
+alert("Enter referral code");
+return;
+}
+
+db.collection("users")
+.where("referralCode","==",code)
+.get()
+.then(snapshot=>{
+
+if(snapshot.empty){
+
+alert("Invalid code");
+
+}else{
+
+let referrerId=snapshot.docs[0].id;
+
+db.collection("users").doc(currentUser.uid).update({
+
+referredBy:referrerId
+
+});
+
+db.collection("users").doc(currentUser.uid).update({
+
+coins:firebase.firestore.FieldValue.increment(300)
+
+});
+
+alert("Referral applied! You received 300 coins");
+
+document.getElementById("refBox").style.display="none";
+
+}
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
