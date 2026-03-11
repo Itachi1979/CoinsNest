@@ -1,224 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Profile</title>
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile</title>
+  <link rel="stylesheet" href="wallet.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+</head>
 <body>
-<style>
+  <div class="container">
+    <h2>Profile</h2>
+    <p><strong>Name:</strong> <span id="name">-</span></p>
+    <p><strong>Email:</strong> <span id="email">-</span></p>
+    <p><strong>Coins:</strong> <span id="coins">0</span></p>
+    <p><strong>Referrals:</strong> <span id="referrals">0</span></p>
+    <button onclick="logout()">Logout</button>
+    <a href="index.html">← Back to Home</a>
+  </div>
 
-body{
-margin:0;
-font-family:Arial;
-background:#f4f4f4;
-padding-bottom:70px;
-}
+  <script src="firebase.js"></script>
+  <script>
+    auth.onAuthStateChanged((user) => {
+      if (!user) return (window.location.href = 'login.html');
 
-/* Navbar */
+      db.collection('users').doc(user.uid).onSnapshot((snap) => {
+        if (!snap.exists) return;
+        const data = snap.data();
+        document.getElementById('name').innerText = data.name || 'Player';
+        document.getElementById('email').innerText = data.email || '-';
+        document.getElementById('coins').innerText = data.coins || 0;
+        document.getElementById('referrals').innerText = data.referralsCount || 0;
+      });
+    });
 
-.navbar{
-position:fixed;
-bottom:0;
-width:100%;
-background:#111;
-display:flex;
-justify-content:space-around;
-align-items:center;
-padding:10px 0;
-box-shadow:0 -2px 10px rgba(0,0,0,0.3);
-}
-
-/* Nav Item */
-
-.nav-item{
-color:#aaa;
-text-decoration:none;
-font-size:12px;
-display:flex;
-flex-direction:column;
-align-items:center;
-transition:0.3s;
-}
-
-/* Icon */
-
-.nav-item i{
-font-size:22px;
-margin-bottom:4px;
-}
-
-/* Active */
-
-.nav-item.active{
-color:#00e5ff;
-}
-
-.nav-item.active i{
-text-shadow:0 0 10px #00e5ff;
-}
-
-/* Hover */
-
-.nav-item:hover{
-color:#00e5ff;
-}
-
-</style>
-
-
-
-<!-- Navbar -->
-
-<div class="navbar">
-
-<a href="login.html" class="nav-item active">
-<i class="fas fa-home"></i>
-Home
-</a>
-
-<a href="leaderboard.html" class="nav-item">
-<i class="fas fa-trophy"></i>
-Leaderboard
-</a>
-
-<a href="invite.html" class="nav-item">
-<i class="fas fa-user-plus"></i>
-Invite
-</a>
-
-<a href="profile.html" class="nav-item">
-<i class="fas fa-user"></i>
-Profile
-</a>
-
-</div>
-
-
-<style>
-
-body{
-font-family: Arial;
-background:#f2f2f2;
-margin:0;
-}
-
-.header{
-background:#4CAF50;
-color:white;
-padding:15px;
-text-align:center;
-font-size:22px;
-}
-
-.profile-box{
-background:white;
-width:90%;
-max-width:400px;
-margin:20px auto;
-padding:20px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-text-align:center;
-}
-
-.level{
-font-size:18px;
-margin:10px 0;
-color:#333;
-}
-
-.coins{
-font-size:18px;
-color:#4CAF50;
-}
-
-.menu{
-margin-top:20px;
-}
-
-.menu button{
-width:100%;
-padding:12px;
-margin:8px 0;
-border:none;
-border-radius:6px;
-font-size:16px;
-cursor:pointer;
-}
-
-.redeem{background:#ff9800;color:white;}
-.privacy{background:#2196F3;color:white;}
-.terms{background:#9c27b0;color:white;}
-.logout{background:#f44336;color:white;}
-</style>
-<div class="header">
-Profile
-</div>
-
-<div class="profile-box">
-
-<h2 id="username">User</h2>
-
-<div class="menu">
-
-<button class="redeem" onclick="window.location.href='wallet.html'">
-Redeem
-</button>
-
-<button class="privacy" onclick="window.location.href='privacy.html'">
-Privacy Policy
-</button>
-
-<button class="terms" onclick="window.location.href='terms.html'">
-Terms & Conditions
-</button>
-
-<button class="logout" onclick="logout()">
-Logout
-</button>
-
-</div>
-
-</div>
-
-<script>
-
-// Logout
-function logout(){
-localStorage.removeItem("user");
-alert("Logged out successfully");
-window.location.href="index.html";
-}
-// Load profile data
-function loadProfile(){
-
-let username = localStorage.getItem("username") || "User";
-let coins = parseInt(localStorage.getItem("coins")) || 0;
-
-let level = 1;
-
-if(coins >= 12000 && coins <= 35999){
-level = 2;
-}
-else if(coins >= 36000){
-level = 3;
-}
-
-document.getElementById("username").innerText = username;
-document.getElementById("coins").innerText = coins;
-document.getElementById("level").innerText = level;
-
-}
-
-// run when page loads
-loadProfile();
-
-</script>
-
-<script src="coins.js"></script>
-
-
-
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = 'login.html';
+      });
+    }
+  </script>
 </body>
 </html>

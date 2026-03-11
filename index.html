@@ -1,35 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login</title>
-
-<link rel="stylesheet" href="login.css">
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoinsNest - Earn</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
 <body>
+  <main class="app-shell">
+    <header class="topbar card">
+      <div>
+        <p class="muted">Welcome back</p>
+        <h1 id="username">Player</h1>
+      </div>
+      <button class="coin-pill" onclick="window.location.href='wallet.html'">💰 <span class="coins">0</span></button>
+    </header>
 
-<div class="login-container">
+    <section class="card">
+      <div class="row">
+        <strong>Level <span id="level">1</span></strong>
+        <span id="progressText" class="muted">0 / 12000</span>
+      </div>
+      <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    </section>
 
-    <h1>Welcome</h1>
-    <p>Login to start earning coins</p>
+    <section class="card">
+      <h2>Quick Earnings</h2>
+      <div class="action-grid">
+        <button onclick="claimDailyBonus()">🎁 Daily Bonus (+40)</button>
+        <button onclick="watchRewardedAd()">📺 Watch Ad (+20)</button>
+        <button onclick="completeTask()">🧩 Complete Task (+80)</button>
+        <button onclick="spinLucky()">🎰 Lucky Spin (+10-100)</button>
+      </div>
+      <p id="msg" class="msg"></p>
+    </section>
 
-    <button class="google-btn" onclick="googleLogin()">
-        Continue with Google
-    </button>
+    <section class="card">
+      <h2>Offerwalls</h2>
+      <div class="action-grid">
+        <button onclick="openOffer('torox')">ToroX</button>
+        <button onclick="openOffer('pubscale')">PubScale</button>
+        <button onclick="openOffer('timewall')">TimeWall</button>
+      </div>
+    </section>
+  </main>
 
-    <p id="status"></p>
+  <nav class="bottom-nav">
+    <a class="active" href="index.html">Home</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="invite.html">Invite</a>
+    <a href="profile.html">Profile</a>
+  </nav>
 
-</div>
-
-<script src="firebase.js"></script>
-<script src="login.js"></script>
-
+  <script src="firebase.js"></script>
+  <script src="coins.js"></script>
 </body>
 </html>

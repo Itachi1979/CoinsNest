@@ -1,186 +1,93 @@
+:root {
+  --bg: #f4f7ff;
+  --card: #ffffff;
+  --primary: #4659ff;
+  --text: #1a1d32;
+  --muted: #697089;
+}
+
+* { box-sizing: border-box; }
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
-  color: rgb(150, 213, 243);
+  color: var(--text);
+  background: linear-gradient(180deg, #eef1ff 0%, #f9fbff 100%);
 }
 
-/* App Container */
-.app {
-  padding: 20px;
-  padding-bottom: 80px;
-}
-
-/* Header */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.profile {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-}
-
-.balance {
-  font-weight: bold;
-  font-size: 18px;
-}
-
-/* Level */
-.level-box {
-  margin-top: 15px;
-  background: rgba(237, 203, 6, 0.15);
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-  width: 350px;
-  display:flex;
-  align-items: center;
-}
-
-/* Buttons */
-.buttons {
-  margin-top: 20px;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border: none;
-  border-radius: 10px;
-  background: gold;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-button:hover {
-  background: orange;
-}
-
-/* Bottom Nav */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: #111;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-}
-
-.bottom-nav button {
-  background: none;
-  color: white;
-  border: none;
-  font-size: 14px;
-}
-
-
-
-.nav-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #ff9800;
-    border: none;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-
-
-.icon {
-    font-size: 18px;
-}
-
-.progress-bar {
-  width: 90%;
-  height: 20px;
-  background: #fcb928;
-  border-radius: 10px;
-  margin: 10px auto;
-  overflow: hidden;
-  width: 350px;
-}
-
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #00c6ff, #0072ff);
-  transition: 0.4s;
-}
-
-
-
-
-body {
-  font-family: Arial, sans-serif;
-  background: #e6e6db;
-  padding: 20px;
-}
-
-.section h2 {
-  margin-bottom: 15px;
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  padding: 10px;
+.app-shell {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 16px 16px 88px;
 }
 
 .card {
-  height: 160px;
-  border-radius: 22px;
-  padding: 15px;
-  text-align: center;
-  color: rgb(152, 213, 225);
+  background: var(--card);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 24px rgba(24, 39, 75, 0.08);
+}
+
+.topbar {
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  align-items: center;
 }
 
-.logo {
-  width: 90px;
-  margin: auto;
-}
-
-.card button {
+.coin-pill {
+  background: #111935;
+  color: #fff;
   border: none;
-  background: rgba(255,255,255,0.2);
-  color: rgb(248, 250, 252);
-  padding: 8px;
-  border-radius: 20px;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: 16px;
   cursor: pointer;
 }
 
-.purple {
-  background: linear-gradient(135deg, #8e2de2, #c471ed);
+.row { display: flex; justify-content: space-between; align-items: center; }
+.muted { color: var(--muted); margin: 0; }
+
+.progress-bar {
+  margin-top: 10px;
+  height: 12px;
+  background: #e6e9ff;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #5c87ff, #53d0ff);
 }
 
-
-.orange {
-  background: linear-gradient(135deg, #dc8118, #f6b867);
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.yellow {
-  background: linear-gradient(135deg, #cdcd07, #e6e644d4);
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  background: #edf0ff;
+  color: #26305f;
+  font-weight: bold;
+  cursor: pointer;
 }
+
+.msg { min-height: 20px; color: #0c7a42; font-weight: bold; }
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #111935;
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0;
+}
+
+.bottom-nav a { color: #aab3de; text-decoration: none; font-weight: bold; }
+.bottom-nav a.active { color: #fff; }

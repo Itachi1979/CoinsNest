@@ -1,138 +1,114 @@
-let currentUser;
+let currentUser = null;
 let userCoins = 0;
+let lastDailyClaim = null;
 
-// Detect login
 auth.onAuthStateChanged((user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
 
-    if (user) {
+  currentUser = user;
+  document.getElementById("username").innerText = user.displayName || "Player";
+  listenUser();
+});
 
-        currentUser = user;
-        listenCoins();
-
-    } else {
-
-        window.location.href = "login.html";
-
+function listenUser() {
+  db.collection("users").doc(currentUser.uid).onSnapshot(async (snap) => {
+    if (!snap.exists) {
+      await db.collection("users").doc(currentUser.uid).set({
+        name: currentUser.displayName || "Player",
+        email: currentUser.email || "",
+        coins: 1000,
+        lastDailyClaim: null,
+        referralCode: currentUser.uid.slice(0, 6).toUpperCase(),
+        referredBy: null,
+      });
+      return;
     }
 
-});
-
-
-// Real-time coins listener
-function listenCoins() {
-
-    db.collection("users").doc(currentUser.uid)
-    .onSnapshot((doc) => {
-
-        if (doc.exists) {
-
-            userCoins = doc.data().coins || 0;
-
-            updateCoinsUI();
-            updateLevel(userCoins);
-
-        } else {
-
-            db.collection("users").doc(currentUser.uid).set({
-                coins: 0
-            });
-
-        }
-
-    });
-
+    const data = snap.data();
+    userCoins = data.coins || 0;
+    lastDailyClaim = data.lastDailyClaim || null;
+    updateCoinsUI(userCoins);
+    updateLevel(userCoins);
+  });
 }
 
-
-// Update coins everywhere
-function updateCoinsUI() {
-
-    let coinElements = document.querySelectorAll(".coins");
-
-    coinElements.forEach(el => {
-        el.innerText = userCoins;
-    });
-}
-function addCoins(amount){
-
-let user = firebase.auth().currentUser;
-
-db.collection("users")
-.doc(user.uid)
-.update({
-
-coins: firebase.firestore.FieldValue.increment(amount)
-
-});
-
+function updateCoinsUI(coins) {
+  document.querySelectorAll(".coins").forEach((el) => (el.innerText = coins));
 }
 
-// Deduct coins
-function deductCoins(amount) {
-
-    if (!currentUser) return;
-
-    db.collection("users").doc(currentUser.uid).update({
-        coins: firebase.firestore.FieldValue.increment(-amount)
-    });
-
-}
-
-
-// Level system
 function updateLevel(coins) {
-
+  const levels = [12000, 36000, 60000];
   let level = 1;
   let min = 0;
-  let max = 12000;
+  let max = levels[0];
 
-  if (coins >= 12000 && coins < 36000) {
+  if (coins >= levels[0] && coins < levels[1]) {
     level = 2;
-    min = 12000;
-    max = 36000;
-  }
-
-  if (coins >= 36000) {
+    min = levels[0];
+    max = levels[1];
+  } else if (coins >= levels[1]) {
     level = 3;
-    min = 36000;
-    max = 60000;
+    min = levels[1];
+    max = levels[2];
   }
 
-  let progress = ((coins - min) / (max - min)) * 100;
+  const progress = Math.max(0, Math.min(100, ((coins - min) / (max - min)) * 100));
 
-  if (progress > 100) progress = 100;
-  if (progress < 0) progress = 0;
+  const levelEl = document.getElementById("level");
+  const fillEl = document.getElementById("progressFill");
+  const textEl = document.getElementById("progressText");
 
-  document.getElementById("level").innerText = level;
-  document.getElementById("progressFill").style.width = progress + "%";
-  document.getElementById("progressText").innerText =
-    coins + " / " + max + " coins";
-
+  if (levelEl) levelEl.innerText = level;
+  if (fillEl) fillEl.style.width = `${progress}%`;
+  if (textEl) textEl.innerText = `${coins} / ${max}`;
 }
 
+function rewardCoins(amount, reason) {
+  if (!currentUser) return;
 
-function addCoins(amount){
+  const userRef = db.collection("users").doc(currentUser.uid);
+  userRef.update({
+    coins: firebase.firestore.FieldValue.increment(amount),
+  });
 
-let userRef=db.collection("users").doc(currentUser.uid);
-
-userRef.get().then(doc=>{
-
-let referredBy=doc.data().referredBy;
-
-userRef.update({
-coins:firebase.firestore.FieldValue.increment(amount)
-});
-
-if(referredBy){
-
-let bonus=Math.floor(amount*0.10);
-
-db.collection("users").doc(referredBy).update({
-coins:firebase.firestore.FieldValue.increment(bonus)
-});
-
+  const msgEl = document.getElementById("msg");
+  if (msgEl) msgEl.innerText = `${reason} +${amount} coins`;
 }
 
-});
+window.watchRewardedAd = () => rewardCoins(20, "Ad watched!");
+window.completeTask = () => rewardCoins(80, "Task complete!");
+window.spinLucky = () => {
+  const reward = Math.floor(Math.random() * 91) + 10;
+  rewardCoins(reward, "Lucky spin reward!");
+};
 
-}
+window.claimDailyBonus = () => {
+  const today = new Date().toISOString().slice(0, 10);
+  if (lastDailyClaim === today) {
+    const msgEl = document.getElementById("msg");
+    if (msgEl) msgEl.innerText = "Daily bonus already claimed today.";
+    return;
+  }
+
+  db.collection("users").doc(currentUser.uid).update({
+    coins: firebase.firestore.FieldValue.increment(40),
+    lastDailyClaim: today,
+  });
+
+  const msgEl = document.getElementById("msg");
+  if (msgEl) msgEl.innerText = "Daily bonus claimed +40 coins";
+};
+
+window.openOffer = (network) => {
+  if (!currentUser) return;
+  const urls = {
+    torox: `https://torox.io/wall?uid=${currentUser.uid}`,
+    pubscale: `https://offer.pubscale.com/?uid=${currentUser.uid}`,
+    timewall: `https://offer.timewall.io/?uid=${currentUser.uid}`,
+  };
+  const url = urls[network];
+  if (url) window.location.href = url;
+};
