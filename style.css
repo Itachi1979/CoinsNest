@@ -5,8 +5,14 @@ body {
   color: rgb(150, 213, 243);
 }
 
+* {
+  box-sizing: border-box;
+}
+
 /* App Container */
 .app {
+  max-width: 960px;
+  margin: 0 auto;
   padding: 20px;
   padding-bottom: 80px;
 }
@@ -42,7 +48,7 @@ body {
   padding: 10px;
   border-radius: 10px;
   text-align: center;
-  width: 350px;
+  width: min(350px, 100%);
   display:flex;
   align-items: center;
 }
@@ -110,13 +116,12 @@ button:hover {
 }
 
 .progress-bar {
-  width: 90%;
   height: 20px;
   background: #fcb928;
   border-radius: 10px;
   margin: 10px auto;
   overflow: hidden;
-  width: 350px;
+  width: min(350px, 100%);
 }
 
 .progress-fill {
@@ -144,6 +149,42 @@ body {
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
   padding: 10px;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+    padding: 0;
+  }
+
+  .nav-btn {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app {
+    padding: 14px;
+    padding-bottom: 86px;
+  }
+
+  .balance {
+    font-size: 16px;
+  }
+
+  .bottom-nav button {
+    font-size: 12px;
+  }
+
+  .logo {
+    width: 72px;
+  }
 }
 
 .card {

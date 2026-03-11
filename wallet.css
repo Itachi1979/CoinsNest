@@ -5,6 +5,8 @@ body {
 }
 
 .container {
+    max-width: 640px;
+    margin: 0 auto;
     padding: 20px;
 }
 
@@ -79,4 +81,30 @@ body {
     padding: 15px 25px;
     border-radius: 10px;
     display: none;
+}
+
+
+* {
+    box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 14px;
+    }
+
+    .balance {
+        padding: 16px;
+    }
+
+    .redeem {
+        padding: 13px;
+    }
+
+    .popup {
+        width: calc(100% - 24px);
+        text-align: center;
+        padding: 12px;
+        bottom: 16px;
+    }
 }
