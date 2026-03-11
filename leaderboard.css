@@ -1,35 +1,6 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #0f172a;
-  color: white;
-  margin: 0;
-}
-
-.container {
-  max-width: 500px;
-  margin: auto;
-  padding: 20px;
-}
-
-h2 {
-  text-align: center;
-}
-
-.player {
-  background: #1e293b;
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.rank {
-  font-weight: bold;
-  color: gold;
-}
-
-.coins {
-  color: #22c55e;
-}
+body { margin: 0; font-family: Arial, sans-serif; background: #f3f5ff; }
+.board { max-width: 560px; margin: 20px auto; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,.07); }
+.player { display: flex; justify-content: space-between; padding: 12px; border-radius: 10px; background: #f6f8ff; margin-bottom: 8px; }
+.rank { font-weight: bold; margin-right: 8px; color: #4358ff; }
+.coins { font-weight: bold; }
+a { text-decoration: none; }
