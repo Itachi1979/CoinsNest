@@ -1,35 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login</title>
-
-<link rel="stylesheet" href="login.css">
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoinsNest - Sign In</title>
+  <link rel="stylesheet" href="login.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
-
-<div class="login-container">
-
-    <h1>Welcome</h1>
-    <p>Login to start earning coins</p>
-
-    <button class="google-btn" onclick="googleLogin()">
-        Continue with Google
-    </button>
-
+  <div class="login-container">
+    <h1>CoinsNest</h1>
+    <p>Sign in to continue earning coins and tickets.</p>
+    <button class="google-btn" onclick="googleLogin()">Continue with Google</button>
     <p id="status"></p>
+  </div>
 
-</div>
-
-<script src="firebase.js"></script>
-<script src="login.js"></script>
-
+  <script src="firebase.js"></script>
+  <script src="auth.js"></script>
+  <script src="login.js"></script>
 </body>
 </html>

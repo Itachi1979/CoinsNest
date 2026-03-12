@@ -1,64 +1,48 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+let stopWatching;
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCa9Tf1MjwFbvG1IdrWAdaol3Bhkfh_rLU",
-  authDomain: "coinsnest-f0a5f.firebaseapp.com",
-  projectId: "coinsnest-f0a5f"
-};
+function renderDashboard(user, data) {
+  const { userName, coins, tickets, level, progressFill, progressText } = CoinsNest.requireElements([
+    "userName",
+    "coins",
+    "tickets",
+    "level",
+    "progressFill",
+    "progressText"
+  ]);
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+  userName.textContent = user.displayName || data.name || "Player";
+  coins.textContent = data.coins || 0;
+  tickets.textContent = data.tickets || 0;
 
-const userId = "globalUser";
-
-// Update UI everywhere
-function updateUI(coins) {
-
-  const ids = ["coins", "walletCoins", "balanceCoins"];
-
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerText = coins;
-  });
-
+  const info = CoinsNest.levelInfo(data.coins || 0);
+  const progress = Math.max(0, Math.min(100, (((data.coins || 0) - info.min) / (info.next - info.min)) * 100));
+  level.textContent = info.level;
+  progressFill.style.width = `${progress}%`;
+  progressText.textContent = `${data.coins || 0} / ${info.next} coins`;
 }
 
-// Load coins
-async function loadCoins() {
-
-  const ref = doc(db, "users", userId);
-  const snap = await getDoc(ref);
-
-  let coins = 0;
-
-  if (snap.exists()) {
-    coins = snap.data().coins ?? 0;
-  } else {
-    await setDoc(ref, { coins: 0 });
+auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    window.location.href = "index.html";
+    return;
   }
 
-  updateUI(coins);
+  await CoinsNest.ensureUserDoc(user);
+
+  if (stopWatching) stopWatching();
+  stopWatching = CoinsNest.watchUser(user.uid, (data) => {
+    if (data) renderDashboard(user, data);
+  });
+});
+
+function goTo(path) {
+  window.location.href = path;
 }
 
-// Add coins
-window.addCoins = async function (amount) {
-
-  const ref = doc(db, "users", userId);
-  const snap = await getDoc(ref);
-
-  let coins = snap.exists() ? snap.data().coins ?? 0 : 0;
-
-  coins += amount;
-
-  await setDoc(ref, { coins: coins });
-
-  updateUI(coins);
-};
-
-loadCoins();
+window.openwallet = () => goTo("wallet.html");
+window.openticket = () => goTo("ticket.html");
+window.opensuperoffer = () => goTo("superoffer.html");
+window.openinvite = () => goTo("invite.html");
+window.openleaderboard = () => goTo("leaderboard.html");
+window.openprofile = () => goTo("profile.html");
+window.logout = () => CoinsNest.logout();
