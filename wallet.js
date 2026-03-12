@@ -1,98 +1,70 @@
-let totalCoins = 0;
-const coinValue = 120; // 120 coins = ₹1
+const COIN_VALUE = 120;
 
-function redeem() {
-
-    let coins = document.getElementById("coinInput").value;
-    let details = document.getElementById("paymentDetails").value;
-
-    if (coins < 1200) {
-        alert("Minimum withdrawal is 1200 coins");
-        return;
-    }
-
-    if (details === "") {
-        alert("Enter payment details");
-        return;
-    }
-
-    // Deduct coins
-    totalCoins -= coins;
-    document.getElementById("coins").innerText = totalCoins + " Coins";
-
-    let rupees = (totalCoins / coinValue).toFixed(2);
-    document.getElementById("rupees").innerText = "≈ ₹" + rupees;
-
-    // Add history
-    let li = document.createElement("li");
-    li.innerText = coins + " Coins Withdrawal Requested";
-    document.getElementById("historyList").appendChild(li);
-
-    // Show popup
-    let popup = document.getElementById("popup");
-    popup.style.display = "block";
-
-    setTimeout(() => {
-        popup.style.display = "none";
-    }, 2000);
-}const userId = "user123";
-
-// Load Coins
-function loadWallet() {
-
-    db.collection("users").doc(userId).get().then((doc) => {
-
-        if (doc.exists) {
-
-            let coins = doc.data().coins;
-
-            document.getElementById("coins").innerText =
-                coins + " Coins";
-
-        } else {
-
-            db.collection("users").doc(userId).set({
-                coins: 5000
-            });
-
-        }
-
-    });
-
+function formatHistory(item) {
+  const date = item.date?.toDate ? item.date.toDate().toLocaleString() : "Just now";
+  return `${item.coins} coins • ${item.method} • ${date}`;
 }
 
-// Redeem
-function redeem() {
+auth.onAuthStateChanged(async (user) => {
+  if (!user) return (window.location.href = "index.html");
 
-    let coins =
-        parseInt(document.getElementById("coinInput").value);
+  const userRef = await CoinsNest.ensureUserDoc(user);
 
-    db.collection("users").doc(userId).get().then((doc) => {
+  userRef.onSnapshot((doc) => {
+    const data = doc.data() || {};
+    const coins = data.coins || 0;
+    document.getElementById("coins").textContent = coins;
+    document.getElementById("rupees").textContent = `≈ ₹${(coins / COIN_VALUE).toFixed(2)}`;
+  });
 
-        let currentCoins = doc.data().coins;
+  const historySnap = await db
+    .collection("withdrawals")
+    .where("userId", "==", user.uid)
+    .orderBy("date", "desc")
+    .limit(10)
+    .get();
 
-        let newCoins = currentCoins - coins;
+  const list = document.getElementById("historyList");
+  list.innerHTML = "";
+  historySnap.forEach((d) => {
+    const li = document.createElement("li");
+    li.textContent = formatHistory(d.data());
+    list.appendChild(li);
+  });
+});
 
-        db.collection("users").doc(userId).update({
-            coins: newCoins
-        });
+async function redeem() {
+  const user = auth.currentUser;
+  const amount = Number(document.getElementById("coinInput").value);
+  const details = document.getElementById("paymentDetails").value.trim();
+  const method = document.querySelector('input[name="pay"]:checked')?.value;
 
-        db.collection("withdrawals").add({
-            userId: userId,
-            coins: coins,
-            status: "pending",
-            date: new Date()
-        });
+  if (!amount || amount < 1200) return alert("Minimum withdrawal is 1200 coins.");
+  if (!details) return alert("Enter UPI/Email details.");
+  if (!method) return alert("Select a payment method.");
 
-        alert("Withdrawal Requested ✅");
+  const ref = db.collection("users").doc(user.uid);
+  const snap = await ref.get();
+  const coins = snap.data().coins || 0;
 
-        loadWallet();
+  if (coins < amount) return alert("Not enough coins.");
 
+  await db.runTransaction(async (tx) => {
+    tx.update(ref, { coins: firebase.firestore.FieldValue.increment(-amount) });
+    tx.set(db.collection("withdrawals").doc(), {
+      userId: user.uid,
+      coins: amount,
+      method,
+      details,
+      status: "pending",
+      date: firebase.firestore.FieldValue.serverTimestamp()
     });
+  });
 
+  const popup = document.getElementById("popup");
+  popup.style.display = "block";
+  setTimeout(() => (popup.style.display = "none"), 2000);
 }
 
-loadWallet();
-loadcoins();
-
-
+window.redeem = redeem;
+window.logout = () => CoinsNest.logout();

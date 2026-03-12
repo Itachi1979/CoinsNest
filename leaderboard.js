@@ -1,59 +1,31 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  query,
-  orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCa9Tf1MjwFbvG1IdrWAdaol3Bhkfh_rLU",
-  authDomain: "coinsnest-f0a5f.firebaseapp.com",
-  projectId: "coinsnest-f0a5f",
+  await CoinsNest.ensureUserDoc(user);
+  const list = document.getElementById("leaderboardList");
 
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-async function loadLeaderboard() {
-
-  const q = query(
-    collection(db, "users"),
-    orderBy("coins", "desc")
-  );
-
-  const snap = await getDocs(q);
-
-  let html = "";
+  const snap = await db.collection("users").orderBy("coins", "desc").limit(30).get();
   let rank = 1;
 
-  snap.forEach(doc => {
-
+  list.innerHTML = "";
+  snap.forEach((doc) => {
     const data = doc.data();
-    const coins = data.coins || 0;
-    const name = data.name || "Player";
-
-    // Only show users with 60000+ coins
-    if (coins >= 60000) {
-
-      html += `
-        <div class="player">
-          <div>
-            <span class="rank">#${rank}</span> ${name}
-          </div>
-          <div class="coins">💰 ${coins}</div>
-        </div>
-      `;
-
-      rank++;
-    }
-
+    const row = document.createElement("div");
+    row.className = "list-row";
+    row.innerHTML = `
+      <span>#${rank} ${data.name || "Player"}</span>
+      <strong>${data.coins || 0} coins</strong>
+    `;
+    list.appendChild(row);
+    rank += 1;
   });
 
-  document.getElementById("leaderboardList").innerHTML =
-    html || "<p>No players above 60000 coins yet.</p>";
-}
+  if (!snap.size) {
+    list.innerHTML = '<p class="muted">No players found yet.</p>';
+  }
+});
 
-loadLeaderboard();
+window.logout = () => CoinsNest.logout();

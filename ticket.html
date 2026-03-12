@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoinsNest - Ticket Challenge</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+  <main class="page">
+    <section class="card">
+      <h2>Ticket Challenge</h2>
+      <p class="muted">Pick the exact 4-digit number. If correct, an ad plays and after verification you earn 1 ticket.</p>
+      <div class="stat"><h4>Target Number</h4><p id="target"></p></div>
+      <div class="options" id="options"></div>
+      <p id="result" class="message"></p>
+      <p id="adState" class="message"></p>
+    </section>
+  </main>
+  <nav class="bottom-nav">
+    <a href="login.html">Home</a><a class="active" href="ticket.html">Ticket</a><a href="superoffer.html">Super</a><a href="wallet.html">Wallet</a><a href="invite.html">Invite</a><a href="profile.html">Profile</a>
+  </nav>
+  <script src="firebase.js"></script>
+  <script src="auth.js"></script>
+  <script src="game.js"></script>
+  <script>
+    mountGame({
+      optionsId: 'options',
+      targetId: 'target',
+      resultId: 'result',
+      rewardConfig: { rewardTickets: 1 }
+    });
+  </script>
+</body>
+</html>

@@ -1,47 +1,31 @@
+* { box-sizing: border-box; }
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #5f2c82, #49a09d);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  font-family: Inter, Arial, sans-serif;
+  background: radial-gradient(circle at top, #223f76, #0c1427);
+  color: #eaf0ff;
+  padding: 16px;
 }
-
 .login-container {
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    text-align: center;
-    width: 300px;
+  width: min(420px, 100%);
+  background: rgba(11, 22, 41, 0.92);
+  border: 1px solid #2b3f66;
+  border-radius: 20px;
+  padding: 28px;
+  text-align: center;
 }
-
 .google-btn {
-    width: 100%;
-    padding: 15px;
-    border: none;
-    background: #4285F4;
-    color: white;
-    font-size: 16px;
-    border-radius: 10px;
-    cursor: pointer;
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 14px;
+  background: #4f8cff;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
 }
-
-
-* {
-    box-sizing: border-box;
-}
-
-@media (max-width: 480px) {
-    body {
-        padding: 16px;
-        align-items: stretch;
-    }
-
-    .login-container {
-        width: 100%;
-        max-width: 360px;
-        margin: auto;
-        padding: 28px 20px;
-    }
-}
+#status { color: #9db2d7; min-height: 20px; }
